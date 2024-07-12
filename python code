@@ -1,0 +1,31 @@
+import openai
+import os
+from flask import Flask, render_template_string, request
+openai.api_key = os.environ['OPENAI_API_KEY']
+def generate_image(components):
+    response = openai.Images.create(
+        prompt=components,
+        model="dall-e-3",
+        size="1024x1024",
+        response_format="url")
+    image_url = response['data'][0]['url']
+    return image_url  
+
+app = Flask(__name__)
+@app.route('/', methods=['GET', 'POST'])
+def hello():
+ output = ""
+
+  if request.method == 'POST':
+    components = request.form['components']
+    output = generate_image(components)
+
+  return render_template_string('''HTML code''',output=output)
+
+@app.route('/generate', methods=['POST'])
+def generate():
+ components = request.form['components']
+ return generate_image(components)
+
+if __name__ == '__main__':
+ app.run(host='0.0.0.0', port=8080)
